@@ -1,0 +1,9 @@
+name: spark-web-api
+version: '${version}'
+main: com.trashbingames.sparkwebapi.SparkWebAPI
+api-version: '1.20'
+dependencies:
+  server:
+    spark:
+      required: true
+      load: BEFORE
