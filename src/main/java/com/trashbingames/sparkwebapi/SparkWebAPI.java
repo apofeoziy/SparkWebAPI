@@ -7,20 +7,39 @@ import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import me.lucko.spark.api.Spark;
 import me.lucko.spark.api.SparkProvider;
+import me.lucko.spark.api.gc.GarbageCollector;
 import me.lucko.spark.api.statistic.StatisticWindow;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public final class SparkWebAPI extends JavaPlugin {
     public Logger logger = getLogger();
     Javalin app;
     Spark spark;
+    FileConfiguration pluginConfig;
+    Map<String, Object> headers;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         logger.info("Hello, world!");
+
+        saveDefaultConfig();
+
+        pluginConfig = getConfig();
+        headers = Objects.requireNonNull(pluginConfig.getConfigurationSection("headers")).getValues(false);
+        Map<String, Object> routes = Objects.requireNonNull(pluginConfig.getConfigurationSection("routes")).getValues(false);
+
+        if ((boolean)headers.get("enabled")) {
+            headers.remove("enabled");
+        } else {
+            headers = new HashMap<>();
+        }
 
         spark = SparkProvider.get();
 
@@ -28,13 +47,27 @@ public final class SparkWebAPI extends JavaPlugin {
             new JavalinJackson().updateMapper(mapper -> {
                 SimpleModule module = new SimpleModule("Serializers");
                 module.addSerializer(MSPTInfo.class, new MSPTInfoSerializer());
+                module.addSerializer(GarbageCollector.class, new GCSerializer());
                 mapper.registerModule(module);
             })
         ));
 
-        app.get("/api/tps", this::getTps);
-        app.get("/api/mspt", this::getMspt);
-        app.start(3000);
+        if ((boolean)routes.get("tps")) {
+            app.get("/api/tps", this::getTps);
+        }
+        if ((boolean)routes.get("mspt")) {
+            app.get("/api/mspt", this::getMspt);
+        }
+        if ((boolean)routes.get("sys_cpu")) {
+            app.get("/api/cpu/sys", this::getSysCpuUsage);
+        }
+        if ((boolean)routes.get("proc_cpu")) {
+            app.get("/api/cpu/proc", this::getProcCpuUsage);
+        }
+        if ((boolean)routes.get("gc")) {
+            app.get("/api/gc", this::getGCData);
+        }
+        app.start(pluginConfig.getInt("port"));
     }
 
     @Override
@@ -44,8 +77,21 @@ public final class SparkWebAPI extends JavaPlugin {
         app.stop();
     }
 
+    void addHeaders(Context ctx) {
+        for (Map.Entry<String, Object> header : headers.entrySet()) {
+            Object val = header.getValue();
+            if (val == null) {
+                ctx.header(header.getKey());
+                continue;
+            }
+            ctx.header(header.getKey(), (String)val);
+        }
+    }
+
     void getTps(Context ctx) {
         var tps = spark.tps();
+
+        addHeaders(ctx);
 
         if (tps == null) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -64,6 +110,8 @@ public final class SparkWebAPI extends JavaPlugin {
     void getMspt(Context ctx) {
         var mspt = spark.mspt();
 
+        addHeaders(ctx);
+
         if (mspt == null) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
             return;
@@ -75,5 +123,17 @@ public final class SparkWebAPI extends JavaPlugin {
                         new MSPTInfo.MSPTStat(mspt.poll(StatisticWindow.MillisPerTick.MINUTES_1))
                 )
         );
+    }
+
+    void getSysCpuUsage(Context ctx) {
+        ctx.json(new CPUUsageInfo(spark.cpuSystem()));
+    }
+
+    void getProcCpuUsage(Context ctx) {
+        ctx.json(new CPUUsageInfo(spark.cpuProcess()));
+    }
+
+    void getGCData(Context ctx) {
+        ctx.json(spark.gc());
     }
 }

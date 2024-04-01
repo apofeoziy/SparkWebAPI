@@ -1,0 +1,16 @@
+# The port of the web API server
+port: 3000
+routes:
+  # Whether to enable the TPS API route or not
+  tps: true
+  # Whether to enable the MSPT API route or not
+  mspt: true
+  # Whether to enable the System CPU Usage API route or not
+  sys_cpu: false
+  # Whether to enable the Process CPU Usage API route or not
+  proc_cpu: false
+  # Whether to enable the Garbage Collector Information API route or not
+  gc: false
+# Additional HTTP Response Headers
+headers:
+  enabled: false
