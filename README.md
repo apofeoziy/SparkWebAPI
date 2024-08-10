@@ -9,19 +9,30 @@ This plugin uses Javalin library for hosting the web API.
 
 ## Installation
 First, Install Spark to your Paper server.
+Even though Paper servers for Minecraft 1.21 and up
+has Spark built-in, a standalone plugin version is 
+required for this plugin.
 
 Then, Install Spark Web API.
 There are two files you could download, which are:
-- spark-web-api-1.0.jar
-- spark-web-api-1.0-all.jar
+- spark-web-api-1.0.1.jar
+- spark-web-api-1.0.1-all.jar
 
-The `spark-web-api-1.0-SNAPSHOT.jar` is a JAR file without 
+The `spark-web-api-1.0.1-SNAPSHOT.jar` is a JAR file without 
 Javalin. You'll have to somehow add Javalin to classpath at 
 runtime.
 
 The `spark-web-api-1.0-SNAPSHOT-all.jar` is a JAR file with 
 Javalin built-in. It is recommended that you download this 
 file as it is easier to set up.
+
+When starting your server, Please remember to set the 
+`paper.preferSparkPlugin` system property to `true`
+
+Here's an example on how to do so:
+```
+java -Dpaper.preferSparkPlugin=true -jar paper-1.21-129.jar
+```
 
 ## Building
 To build the Spark Web API, You'll have to run the shadowJar 
