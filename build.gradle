@@ -44,6 +44,18 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+tasks.named('shadowJar') {
+    archiveClassifier.set('')
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
+}
+
 processResources {
     def props = [version: version]
     inputs.properties props
