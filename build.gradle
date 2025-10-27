@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT"
     compileOnly 'me.lucko:spark-api:0.1-SNAPSHOT'
     implementation "com.fasterxml.jackson.core:jackson-databind:2.17.2"
     implementation "io.javalin:javalin:6.2.0"
