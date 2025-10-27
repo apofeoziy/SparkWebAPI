@@ -41,7 +41,13 @@ public final class SparkWebAPI extends JavaPlugin {
             headers = new HashMap<>();
         }
 
-        spark = SparkProvider.get();
+        try {
+            spark = SparkProvider.get();
+        } catch (IllegalStateException ex) {
+            logger.severe("Spark plugin not found. Please install the Spark plugin to enable Spark Web API.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         app = Javalin.create(config -> config.jsonMapper(
             new JavalinJackson().updateMapper(mapper -> {
@@ -74,7 +80,9 @@ public final class SparkWebAPI extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         logger.info("Shutting down Spark Web API...");
-        app.stop();
+        if (app != null) {
+            app.stop();
+        }
     }
 
     void addHeaders(Context ctx) {
