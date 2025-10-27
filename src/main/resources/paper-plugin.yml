@@ -5,5 +5,5 @@ api-version: '1.21'
 dependencies:
   server:
     spark:
-      required: true
+      required: false
       load: BEFORE
