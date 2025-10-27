@@ -9,7 +9,7 @@ This plugin uses Javalin library for hosting the web API.
 
 ## Installation
 First, Install Spark to your Paper server.
-Even though Paper servers for Minecraft 1.21 and up
+Even though Paper servers for Minecraft 1.21.8 and up
 has Spark built-in, a standalone plugin version is 
 required for this plugin.
 
@@ -31,7 +31,7 @@ When starting your server, Please remember to set the
 
 Here's an example on how to do so:
 ```
-java -Dpaper.preferSparkPlugin=true -jar paper-1.21-129.jar
+java -Dpaper.preferSparkPlugin=true -jar paper-1.21.8-latest.jar
 ```
 
 ## Building
